@@ -19,7 +19,7 @@ OPTIMIZE = 1
 
 input = []
 target = 0
-solutions = {}
+unique_solutions = {}
 
 # Handle input.
 # Example: countdown_number_solver.solve([100, 25, 8, 3, 1, 1], 984)
@@ -29,58 +29,19 @@ def solve(arg_input, arg_target):
     for num in arg_input:
         assert num >= 1
         input.append(num)
+    # Sort the list so that duplicate numbers are grouped together.
+    input.sort(reverse=True)
 
     global target
     assert arg_target > 0
     target = arg_target
 
-    solutions.clear()
-    generate_permutation()
+    unique_solutions.clear()
+    place_operators()
 
-    for solution in solutions:
-        print(solution)
-    print('Total: ' + str(len(solutions)) + ' solutions.')
-
-
-# Generate permutations of the input numbers.
-
-indices = []
-permutation = []
-
-def generate_permutation():
-    indices.clear()
-    permutation.clear()
-
-    recursive_generate_permutation(0)
-
-def recursive_generate_permutation(position):
-    count = len(input)
-
-    if position == count:
-        permutation.clear()
-        for index in indices:
-            permutation.append(input[index])
-
-        place_operators(permutation)
-        return
-
-    for index in range(count):
-        valid = True
-        for i in range(position):
-            p_idx = indices[i]
-            # Check for duplicate index.
-            if p_idx == index:
-                valid = False
-                break
-            # In case of repeated numbers in the original input, only allow one order.
-            if input[p_idx] == input[index] and p_idx > index:
-                valid = False
-                break
-
-        if valid:
-            indices.append(index)
-            recursive_generate_permutation(position + 1)
-            indices.pop()
+    for solution_str in unique_solutions:
+        print(solution_str)
+    print('Total: ' + str(len(unique_solutions)) + ' solutions.')
 
 
 # Combine permuted numbers with arithmetic operations.
@@ -88,32 +49,55 @@ def recursive_generate_permutation(position):
 
 stack = []
 record = []
+masks = []
 
-def place_operators(numbers):
+def place_operators():
     stack.clear()
     record.clear()
 
-    recursive_place_operators(numbers, 0)
+    masks.clear()
+    masks.extend([0] * len(input))
 
-def recursive_place_operators(numbers, position):
+    recursive_place_operators(0)
+
+def recursive_place_operators(num_consumed):
 
     # Check result.
     global target
     if len(stack) == 1 and stack[0] == target:
         solution = contruct_solution_string(record)
-        solutions[solution] = None
+        unique_solutions[solution] = num_consumed
         return
 
-    # Skip operation and continue.
-    if position < len(numbers):
-        num = numbers[position]
-        stack.append(num)
-        record.append(num)
+    # Push another number on the stack.
+    count = len(input)
+    if num_consumed < count:
+        for index in range(count):
+            if masks[index] != 0:
+                continue
+            num = input[index]
 
-        recursive_place_operators(numbers, position + 1)
+            # In case of repeated numbers in the original input, only allow one order.
+            if index + 1 < count and num == input[index + 1]:
+                invalid = False
+                for i in range(index + 1, count):
+                    if input[i] != num:
+                        break
+                    if masks[i] != 0:
+                        invalid = True
+                        break
+                if invalid:
+                    break
 
-        stack.pop()
-        record.pop()
+            masks[index] = 1
+            stack.append(num)
+            record.append(num)
+
+            recursive_place_operators(num_consumed + 1)
+
+            stack.pop()
+            record.pop()
+            masks[index] = 0
 
     # Enumerate operators.
     if len(stack) > 1:
@@ -125,7 +109,7 @@ def recursive_place_operators(numbers, position):
             stack.append(num2 + num1)
             record.append('+')
 
-            recursive_place_operators(numbers, position)
+            recursive_place_operators(num_consumed)
 
             stack.pop()
             record.pop()
@@ -136,7 +120,7 @@ def recursive_place_operators(numbers, position):
             stack.append(num2 - num1)
             record.append('-')
 
-            recursive_place_operators(numbers, position)
+            recursive_place_operators(num_consumed)
 
             stack.pop()
             record.pop()
@@ -147,7 +131,7 @@ def recursive_place_operators(numbers, position):
             stack.append(num2 * num1)
             record.append('x')
 
-            recursive_place_operators(numbers, position)
+            recursive_place_operators(num_consumed)
 
             stack.pop()
             record.pop()
@@ -158,7 +142,7 @@ def recursive_place_operators(numbers, position):
             stack.append(int(num2 / num1))
             record.append('/')
 
-            recursive_place_operators(numbers, position)
+            recursive_place_operators(num_consumed)
 
             stack.pop()
             record.pop()
@@ -262,14 +246,22 @@ def sort_children(children):
                 children[j] = temp
 
 def compare_operations_less_than(op1, op2):
+    # positive > negative
     if op1.negative != op2.negative:
         return op1.negative
+    # integer > fraction
     if op1.reciprocal != op2.reciprocal:
         return op1.reciprocal
+    # multiplication or division > addition or subtraction
+    if (op1.operator == 'x' or op1.operator == '/') != (op2.operator == 'x' or op2.operator == '/'):
+        return not (op1.operator == 'x' or op1.operator == '/')
+    # bigger value > smaller value
     if op1.value != op2.value:
         return op1.value < op2.value
+    # longer string > shorter string
     if len(op1.expression) != len(op2.expression):
         return len(op1.expression) < len(op2.expression)
+    # text comparison
     return op1.expression < op2.expression
 
 
