@@ -138,7 +138,7 @@ def recursive_place_operators(num_consumed):
 
         # Division
         if num2 >= num1 and num1 != 1 and num2 % num1 == 0:  # Fractions are not allowed and 
-                                                            # exclude the trivial case of A / 1 = A.
+                                                             # exclude the trivial case of A / 1 = A.
             stack.append(int(num2 / num1))
             record.append('/')
 
