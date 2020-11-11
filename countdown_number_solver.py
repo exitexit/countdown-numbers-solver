@@ -99,6 +99,8 @@ def recursive_place_operators(num_consumed):
             record.pop()
             masks[index] = 0
 
+            if num_consumed + 1 == count:
+                break
             index = next_index
 
     # Enumerate operators.
