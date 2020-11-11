@@ -72,22 +72,22 @@ def recursive_place_operators(num_consumed):
     # Push another number on the stack.
     count = len(input)
     if num_consumed < count:
-        for index in range(count):
+        index = 0
+        while index < count:
             if masks[index] != 0:
+                index += 1
                 continue
             num = input[index]
+            next_index = index + 1
 
             # In case of repeated numbers in the original input, only allow one order.
             if index + 1 < count and num == input[index + 1]:
-                invalid = False
                 for i in range(index + 1, count):
-                    if input[i] != num:
+                    if input[i] == num:
+                        assert masks[i] == 0
+                    else:
+                        next_index = i
                         break
-                    if masks[i] != 0:
-                        invalid = True
-                        break
-                if invalid:
-                    break
 
             masks[index] = 1
             stack.append(num)
@@ -98,6 +98,8 @@ def recursive_place_operators(num_consumed):
             stack.pop()
             record.pop()
             masks[index] = 0
+
+            index = next_index
 
     # Enumerate operators.
     if len(stack) > 1:
