@@ -257,6 +257,9 @@ def compare_operations_less_than(op1, op2):
     # multiplication or division > addition or subtraction
     if (op1.operator == 'x' or op1.operator == '/') != (op2.operator == 'x' or op2.operator == '/'):
         return not (op1.operator == 'x' or op1.operator == '/')
+    # expression > number
+    if (op1.operator is None) != (op2.operator is None):
+        return op1.operator is None
     # bigger value > smaller value
     if op1.value != op2.value:
         return op1.value < op2.value
