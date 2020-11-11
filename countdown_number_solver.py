@@ -72,11 +72,13 @@ def recursive_place_operators(num_consumed):
     # Push another number on the stack.
     count = len(input)
     if num_consumed < count:
+        zero_count = 0
         index = 0
         while index < count:
             if masks[index] != 0:
                 index += 1
                 continue
+            zero_count += 1
             num = input[index]
             next_index = index + 1
 
@@ -99,7 +101,7 @@ def recursive_place_operators(num_consumed):
             record.pop()
             masks[index] = 0
 
-            if num_consumed + 1 == count:
+            if num_consumed + zero_count == count:
                 break
             index = next_index
 
