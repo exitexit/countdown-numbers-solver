@@ -30,13 +30,78 @@ def solve(arg_input, arg_target):
 
     for num in arg_input:
         assert num >= 1
+    root = generate_permutation_tree(arg_input)
 
     unique_solutions.clear()
-    place_operators(arg_input)
+    place_operators(root)
 
     for solution_str in unique_solutions:
         print(solution_str)
     print('Total: ' + str(len(unique_solutions)) + ' solutions.')
+
+
+# Generate the permutation tree of the input numbers.
+
+class NumberNode:
+    number = None
+    children = None
+
+    def __init__(self, number):
+        self.number = number
+
+def generate_permutation_tree(input):
+    # Sort the list so that duplicate numbers are grouped together.
+    numbers = []
+    numbers.extend(input)
+    numbers.sort(reverse=True)
+
+    root = NumberNode(None)
+
+    indices = []
+    recursive_generate_permutation_tree(numbers, indices, root)
+
+    return root
+
+def recursive_generate_permutation_tree(numbers, indices, node):
+    count_numbers = len(numbers)
+    count_indices = len(indices)
+
+    if count_indices == count_numbers:
+        return
+
+    index = 0
+    while index < count_numbers:
+        next_index = index + 1
+        valid = True
+        for i in range(count_indices):
+            # Check for duplicate index.
+            if indices[i] == index:
+                valid = False
+                break
+
+        if valid:
+            num = numbers[index]
+
+            # In case of repeated numbers in the original input, only allow one order.
+            # NOTE: This technique only works if the numbers are sorted.
+            if index + 1 < count_numbers and num == numbers[index + 1]:
+                next_index = index + 2
+                for i in range(index + 2, count_numbers):
+                    if numbers[i] != num:
+                        next_index = i
+                        break
+
+            child = NumberNode(num)
+            if node.children is None:
+                node.children = [child]
+            else:
+                node.children.append(child)
+
+            indices.append(index)
+            recursive_generate_permutation_tree(numbers, indices, child)
+            indices.pop()
+
+        index = next_index
 
 
 # Combine permuted numbers with arithmetic operations.
@@ -44,23 +109,14 @@ def solve(arg_input, arg_target):
 
 stack = []
 record = []
-masks = []
 
-def place_operators(input):
-    # Sort the list so that duplicate numbers are grouped together.
-    numbers = []
-    numbers.extend(input)
-    numbers.sort(reverse=True)
-
+def place_operators(root):
     stack.clear()
     record.clear()
 
-    masks.clear()
-    masks.extend([0] * len(numbers))
+    recursive_place_operators(root, 0)
 
-    recursive_place_operators(numbers, 0)
-
-def recursive_place_operators(numbers, num_consumed):
+def recursive_place_operators(node, num_consumed):
 
     # Check result.
     global target
@@ -70,41 +126,15 @@ def recursive_place_operators(numbers, num_consumed):
         return
 
     # Push another number on the stack.
-    count = len(input)
-    if num_consumed < count:
-        zero_count = 0
-        index = 0
-        while index < count:
-            if masks[index] != 0:
-                index += 1
-                continue
-            zero_count += 1
-            num = numbers[index]
-            next_index = index + 1
+    if node.children is not None:
+        for child in node.children:
+            stack.append(child.number)
+            record.append(child.number)
 
-            # In case of repeated numbers in the original input, only allow one order.
-            # NOTE: This technique only works if the numbers are sorted.
-            if index + 1 < count and num == numbers[index + 1]:
-                for i in range(index + 1, count):
-                    if numbers[i] == num:
-                        assert masks[i] == 0
-                    else:
-                        next_index = i
-                        break
-
-            masks[index] = 1
-            stack.append(num)
-            record.append(num)
-
-            recursive_place_operators(numbers, num_consumed + 1)
+            recursive_place_operators(child, num_consumed + 1)
 
             stack.pop()
             record.pop()
-            masks[index] = 0
-
-            if num_consumed + zero_count == count:
-                break
-            index = next_index
 
     # Enumerate operators.
     if len(stack) > 1:
@@ -116,7 +146,7 @@ def recursive_place_operators(numbers, num_consumed):
             stack.append(num2 + num1)
             record.append('+')
 
-            recursive_place_operators(numbers, num_consumed)
+            recursive_place_operators(node, num_consumed)
 
             stack.pop()
             record.pop()
@@ -127,7 +157,7 @@ def recursive_place_operators(numbers, num_consumed):
             stack.append(num2 - num1)
             record.append('-')
 
-            recursive_place_operators(numbers, num_consumed)
+            recursive_place_operators(node, num_consumed)
 
             stack.pop()
             record.pop()
@@ -138,7 +168,7 @@ def recursive_place_operators(numbers, num_consumed):
             stack.append(num2 * num1)
             record.append('x')
 
-            recursive_place_operators(numbers, num_consumed)
+            recursive_place_operators(node, num_consumed)
 
             stack.pop()
             record.pop()
@@ -149,7 +179,7 @@ def recursive_place_operators(numbers, num_consumed):
             stack.append(int(num2 / num1))
             record.append('/')
 
-            recursive_place_operators(numbers, num_consumed)
+            recursive_place_operators(node, num_consumed)
 
             stack.pop()
             record.pop()
