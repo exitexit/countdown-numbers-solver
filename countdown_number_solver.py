@@ -17,7 +17,6 @@
 
 OPTIMIZE = 1
 
-input = []
 target = 0
 unique_solutions = {}
 
@@ -25,19 +24,15 @@ unique_solutions = {}
 # Example: countdown_number_solver.solve([100, 25, 8, 3, 1, 1], 984)
 
 def solve(arg_input, arg_target):
-    input.clear()
-    for num in arg_input:
-        assert num >= 1
-        input.append(num)
-    # Sort the list so that duplicate numbers are grouped together.
-    input.sort(reverse=True)
-
     global target
     assert arg_target > 0
     target = arg_target
 
+    for num in arg_input:
+        assert num >= 1
+
     unique_solutions.clear()
-    place_operators()
+    place_operators(arg_input)
 
     for solution_str in unique_solutions:
         print(solution_str)
@@ -51,16 +46,21 @@ stack = []
 record = []
 masks = []
 
-def place_operators():
+def place_operators(input):
+    # Sort the list so that duplicate numbers are grouped together.
+    numbers = []
+    numbers.extend(input)
+    numbers.sort(reverse=True)
+
     stack.clear()
     record.clear()
 
     masks.clear()
-    masks.extend([0] * len(input))
+    masks.extend([0] * len(numbers))
 
-    recursive_place_operators(0)
+    recursive_place_operators(numbers, 0)
 
-def recursive_place_operators(num_consumed):
+def recursive_place_operators(numbers, num_consumed):
 
     # Check result.
     global target
@@ -79,13 +79,14 @@ def recursive_place_operators(num_consumed):
                 index += 1
                 continue
             zero_count += 1
-            num = input[index]
+            num = numbers[index]
             next_index = index + 1
 
             # In case of repeated numbers in the original input, only allow one order.
-            if index + 1 < count and num == input[index + 1]:
+            # NOTE: This technique only works if the numbers are sorted.
+            if index + 1 < count and num == numbers[index + 1]:
                 for i in range(index + 1, count):
-                    if input[i] == num:
+                    if numbers[i] == num:
                         assert masks[i] == 0
                     else:
                         next_index = i
@@ -95,7 +96,7 @@ def recursive_place_operators(num_consumed):
             stack.append(num)
             record.append(num)
 
-            recursive_place_operators(num_consumed + 1)
+            recursive_place_operators(numbers, num_consumed + 1)
 
             stack.pop()
             record.pop()
@@ -115,7 +116,7 @@ def recursive_place_operators(num_consumed):
             stack.append(num2 + num1)
             record.append('+')
 
-            recursive_place_operators(num_consumed)
+            recursive_place_operators(numbers, num_consumed)
 
             stack.pop()
             record.pop()
@@ -126,7 +127,7 @@ def recursive_place_operators(num_consumed):
             stack.append(num2 - num1)
             record.append('-')
 
-            recursive_place_operators(num_consumed)
+            recursive_place_operators(numbers, num_consumed)
 
             stack.pop()
             record.pop()
@@ -137,7 +138,7 @@ def recursive_place_operators(num_consumed):
             stack.append(num2 * num1)
             record.append('x')
 
-            recursive_place_operators(num_consumed)
+            recursive_place_operators(numbers, num_consumed)
 
             stack.pop()
             record.pop()
@@ -148,7 +149,7 @@ def recursive_place_operators(num_consumed):
             stack.append(int(num2 / num1))
             record.append('/')
 
-            recursive_place_operators(num_consumed)
+            recursive_place_operators(numbers, num_consumed)
 
             stack.pop()
             record.pop()
