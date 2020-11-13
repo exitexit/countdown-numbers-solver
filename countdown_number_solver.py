@@ -85,7 +85,7 @@ def recursive_generate_permutation_tree(numbers, indices, node):
             # In case of repeated numbers in the original input, only allow one order.
             # NOTE: This technique only works if the numbers are sorted.
             if index + 1 < count_numbers and num == numbers[index + 1]:
-                next_index = index + 2
+                next_index = count_numbers
                 for i in range(index + 2, count_numbers):
                     if numbers[i] != num:
                         next_index = i
