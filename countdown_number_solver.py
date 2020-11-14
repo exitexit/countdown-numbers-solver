@@ -174,7 +174,7 @@ def recursive_place_operators(node, num_consumed):
             record.pop()
 
         # Division
-        if num2 >= num1 and num1 != 1 and num2 % num1 == 0:  # Fractions are not allowed and 
+        if num2 >= num1 and num1 != 1 and num2 % num1 == 0:  # Fractions are not allowed and
                                                              # exclude the trivial case of A / 1 = A.
             stack.append(int(num2 / num1))
             record.append('/')
@@ -234,7 +234,7 @@ class Operation:
     def compile_expression(self):
         if self.operator is None:
             self.expression = str(self.value)
-        
+
         elif self.operator == '+':
             assert len(self.children) > 1
             sort_children(self.children)
@@ -245,7 +245,7 @@ class Operation:
                     expression = sign + child.expression
                 else:
                     sign = ' - ' if child.negative else ' + '
-                    expression = expression + sign + child.expression
+                    expression += sign + child.expression
             self.expression = expression
 
         elif self.operator == '-':
@@ -264,7 +264,7 @@ class Operation:
                     expression = sign + child_exp
                 else:
                     sign = ' / ' if child.reciprocal else ' x '
-                    expression = expression + sign + child_exp
+                    expression += sign + child_exp
             self.expression = expression
 
         elif self.operator == '/':
@@ -274,8 +274,9 @@ class Operation:
             assert False
 
 def sort_children(children):
+    # Simple insertion sort, in descending order.
     count = len(children)
-    for i in range(count):
+    for i in range(count - 1):
         for j in range(i + 1, count):
             if compare_operations_less_than(children[i], children[j]):
                 temp = children[i]
