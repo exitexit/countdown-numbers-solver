@@ -204,13 +204,13 @@ class Operation:
 
     def __init__(self, value, operator = None, left = None, right = None):
         self.value = value
-        self.operator = operator
-        self.children = []
 
-        if left is not None:
-            self.children.append(left)
-        if right is not None:
-            self.children.append(right)
+        if operator is None:
+            assert left is None and right is None
+        else:
+            assert left is not None and right is not None
+            self.operator = operator
+            self.children = [ left, right ]
 
     def __str__(self):
         return self.expression
