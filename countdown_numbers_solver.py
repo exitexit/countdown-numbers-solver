@@ -21,7 +21,7 @@ target = 0
 unique_solutions = {}
 
 # Handle input.
-# Example: countdown_number_solver.solve([100, 25, 8, 3, 1, 1], 984)
+# Example: countdown_numbers_solver.solve([100, 25, 8, 3, 1, 1], 984)
 
 def solve(arg_input, arg_target):
     global target
