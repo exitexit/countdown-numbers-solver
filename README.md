@@ -2,7 +2,7 @@
 
 Like my code? [![donate](https://img.shields.io/badge/%24-Buy%20me%20a%20coffee-ef864e.svg)](https://www.buymeacoffee.com/exitexit) or consider donating to my Ether wallet: 0x3c2f57171FBc82D1F54de74f20Ce174ca4874298
 
-A Python3 function for solving the numbers problems in the British game show Countdown.
+A Python3 function for solving the numbers game problems in the British game show Countdown.
 If you are interested in learning about the game, check out [here](https://en.wikipedia.org/wiki/Countdown_(game_show)#Numbers_round).
 Episodes of the game show can be found on YouTube.
 
