@@ -11,6 +11,12 @@ Episodes of the game show can be found on YouTube.
 ##### countdown_numbers_solver.py
 The file contains a set of utilities for exploring the solution space of a given numbers problem and optimizing the output in a human readable format. The code is written mostly in procedural format for ease of comprehension.
 
+## Install PyPI Package
+```
+pip3 install countdown_numbers_solver
+```
+More documentation can be found at: https://pypi.org/project/countdown-numbers-solver/
+
 ## Sample Usage
 Example: `numbers = [ 100, 25, 8, 3, 1, 1 ]` and `target = 984`.<br/>
 By default, the results were properly de-duplicated to eliminate the trivial variations of the same solutions.
