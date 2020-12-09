@@ -25,11 +25,11 @@ unique_solutions = {}
 
 def solve(arg_input, arg_target):
     global target
-    assert arg_target > 0
+    assert isinstance(arg_target, int) and arg_target > 0
     target = arg_target
 
     for num in arg_input:
-        assert num >= 1
+        assert isinstance(num, int) and num >= 1
     root = generate_permutation_tree(arg_input)
 
     unique_solutions.clear()
